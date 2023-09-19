@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  gateway:
+    build: .
+    ports:
+      - 7777:7777
+    volumes:
+      - ./mlruns:/mlruns
+      - .:/home/mlflow
+    env_file:
+      - .env
+    command: ["mlflow", "gateway", "start", "--config-path", "/home/mlflow/routes.yml", "--port", "7777", "--host", "0.0.0.0"]
+  tracking:
+    build: .
+    ports:
+      - 4444:4444
+    volumes:
+      - ./mlruns:/mlruns
+      - .:/home/mlflow
+    env_file:
+      - .env
+    environment:
+      - MLFLOW_GATEWAY_URI=http://gateway:7777
+    command: ["mlflow", "server", "--port", "4444", "--host", "0.0.0.0"]
